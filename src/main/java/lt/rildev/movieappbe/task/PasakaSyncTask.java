@@ -3,7 +3,7 @@ package lt.rildev.movieappbe.task;
 import lt.rildev.movieappbe.model.Movie;
 import lt.rildev.movieappbe.provider.PasakaDataProvider;
 import lt.rildev.movieappbe.service.MovieService;
-import lt.rildev.movieappbe.youtube.YoutubeVideoService;
+import lt.rildev.movieappbe.service.YoutubeVideoDownloaderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,17 +21,17 @@ public class PasakaSyncTask {
     private static final Logger log = LoggerFactory.getLogger(PasakaSyncTask.class);
 
     private final PasakaDataProvider pasakaDataProvider;
-    private final YoutubeVideoService youtubeVideoService;
+    private final YoutubeVideoDownloaderService youtubeVideoDownloaderService;
     private final MovieService movieService;
     private final Map<String, Path> downloadedVideos = new ConcurrentHashMap<>();
 
     public PasakaSyncTask(
             PasakaDataProvider pasakaDataProvider,
-            YoutubeVideoService youtubeVideoService,
+            YoutubeVideoDownloaderService youtubeVideoDownloaderService,
             MovieService movieService
     ) {
         this.pasakaDataProvider = pasakaDataProvider;
-        this.youtubeVideoService = youtubeVideoService;
+        this.youtubeVideoDownloaderService = youtubeVideoDownloaderService;
         this.movieService = movieService;
     }
 
@@ -72,7 +72,7 @@ public class PasakaSyncTask {
         }
 
         try {
-            Path downloadedVideo = youtubeVideoService.download(movie.externalTrailerUrl());
+            Path downloadedVideo = youtubeVideoDownloaderService.download(movie.externalTrailerUrl());
             downloadedVideos.put(movie.id(), downloadedVideo);
             return withDownloadedMovie(movie, downloadedVideo);
         } catch (RuntimeException exception) {
@@ -82,26 +82,8 @@ public class PasakaSyncTask {
     }
 
     private Movie withDownloadedMovie(Movie movie, Path downloadedVideo) {
-        return new Movie(
-                movie.id(),
-                movie.provider(),
-                movie.title(),
-                movie.originalTitle(),
-                movie.slug(),
-                movie.detailUrl(),
-                movie.durationMinutes(),
-                movie.description(),
-                movie.shortDescription(),
-                movie.releaseDate(),
-                movie.releaseYear(),
-                movie.genres(),
-                movie.ageRating(),
-                movie.posterUrl(),
-                movie.externalTrailerUrl(),
-                downloadedVideo.getFileName().toString(),
-                movie.downloadedPosterPath(),
-                movie.premiere(),
-                movie.screenings()
-        );
+        return movie.toBuilder()
+                .trailerPath(downloadedVideo.getFileName().toString())
+                .build();
     }
 }

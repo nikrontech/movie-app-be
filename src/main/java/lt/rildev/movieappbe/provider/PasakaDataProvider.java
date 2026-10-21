@@ -145,10 +145,10 @@ public class PasakaDataProvider implements CinemaDataProvider {
         List<Genre> result = new ArrayList<>();
 
         for (JsonNode genre : genres) {
-            result.add(new Genre(
-                    text(genre, "name"),
-                    text(genre, "slug")
-            ));
+            result.add(Genre.builder()
+                    .name(text(genre, "name"))
+                    .slug(text(genre, "slug"))
+                    .build());
         }
 
         return result;
@@ -157,34 +157,37 @@ public class PasakaDataProvider implements CinemaDataProvider {
     private Movie mapMovie(JsonNode movie) {
         List<Genre> genres = new ArrayList<>();
         for (JsonNode genre : movie.path("genres")) {
-            genres.add(new Genre(text(genre, "name"), text(genre, "slug")));
+            genres.add(Genre.builder()
+                    .name(text(genre, "name"))
+                    .slug(text(genre, "slug"))
+                    .build());
         }
 
         JsonNode rating = movie.path("mpaa_rating");
         JsonNode image = movie.path("image");
         String slug = text(movie, "slug");
 
-        return new Movie(
-                qualifiedId(slug),
-                PROVIDER,
-                text(movie, "name"),
-                text(movie, "original_name"),
-                slug,
-                slug == null ? null : "https://pasaka.lt/filmas/" + slug,
-                integer(movie, "runtime"),
-                text(movie, "description"),
-                firstText(movie, "synopsis", "short_description"),
-                null,
-                integer(movie, "release_year"),
-                genres,
-                new AgeRating(text(rating, "name"), text(rating, "description")),
-                firstText(image, "poster", "thumb", "original"),
-                text(movie, "trailer_link"),
-                null,
-                null,
-                booleanValue(movie, "premiere"),
-                mapScreenings(movie.path("events"), qualifiedId(slug))
-        );
+        return Movie.builder()
+                .id(qualifiedId(slug))
+                .provider(PROVIDER)
+                .title(text(movie, "name"))
+                .originalTitle(text(movie, "original_name"))
+                .slug(slug)
+                .detailUrl(slug == null ? null : "https://pasaka.lt/filmas/" + slug)
+                .durationMinutes(integer(movie, "runtime"))
+                .description(text(movie, "description"))
+                .shortDescription(firstText(movie, "synopsis", "short_description"))
+                .releaseYear(integer(movie, "release_year"))
+                .genres(genres)
+                .ageRating(AgeRating.builder()
+                        .code(text(rating, "name"))
+                        .description(text(rating, "description"))
+                        .build())
+                .posterUrl(firstText(image, "poster", "thumb", "original"))
+                .externalTrailerUrl(text(movie, "trailer_link"))
+                .screenings(mapScreenings(movie.path("events"), qualifiedId(slug)))
+                .premiere(booleanValue(movie, "premiere"))
+                .build();
     }
 
     private List<Screening> mapScreenings(JsonNode events, String movieId) {
@@ -195,26 +198,21 @@ public class PasakaDataProvider implements CinemaDataProvider {
         List<Screening> screenings = new ArrayList<>();
         for (JsonNode event : events) {
             JsonNode theater = event.path("theater");
-            screenings.add(new Screening(
-                    text(event, "markus_link"),
-                    movieId,
-                    new Cinema(
-                            text(theater, "id"),
-                            text(theater, "name"),
-                            text(theater, "address")
-                    ),
-                    parseDate(text(event.path("starts_at"), "full")),
-                    parseDate(text(event.path("ends_at"), "full")),
-                    null,
-                    text(event, "markus_link"),
-                    null,
-                    null,
-                    null,
-                    null,
-                    event.path("is_sold_out").asBoolean(false) ? "SOLD_OUT" : "AVAILABLE",
-                    booleanValue(event, "is_sold_out"),
-                    booleanValue(event, "is_cancelled")
-            ));
+            screenings.add(Screening.builder()
+                    .id(text(event, "markus_link"))
+                    .movieId(movieId)
+                    .cinema(Cinema.builder()
+                            .id(text(theater, "id"))
+                            .name(text(theater, "name"))
+                            .address(text(theater, "address"))
+                            .build())
+                    .startsAt(parseDate(text(event.path("starts_at"), "full")))
+                    .endsAt(parseDate(text(event.path("ends_at"), "full")))
+                    .bookingUrl(text(event, "markus_link"))
+                    .availability(event.path("is_sold_out").asBoolean(false) ? "SOLD_OUT" : "AVAILABLE")
+                    .soldOut(booleanValue(event, "is_sold_out"))
+                    .cancelled(booleanValue(event, "is_cancelled"))
+                    .build());
         }
 
         return screenings;
@@ -231,13 +229,9 @@ public class PasakaDataProvider implements CinemaDataProvider {
     }
 
     private Movie withScreenings(Movie movie, List<Screening> screenings) {
-        return new Movie(
-                movie.id(), movie.provider(), movie.title(), movie.originalTitle(), movie.slug(),
-                movie.detailUrl(), movie.durationMinutes(), movie.description(), movie.shortDescription(),
-                movie.releaseDate(), movie.releaseYear(), movie.genres(), movie.ageRating(), movie.posterUrl(),
-                movie.externalTrailerUrl(), movie.trailerPath(), movie.downloadedPosterPath(),
-                movie.premiere(), screenings
-        );
+        return movie.toBuilder()
+                .screenings(screenings)
+                .build();
     }
 
     private JsonNode dataFrom(JsonNode response) {

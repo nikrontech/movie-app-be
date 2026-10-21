@@ -1,19 +1,18 @@
-package lt.rildev.movieappbe.youtube;
+package lt.rildev.movieappbe.service;
 
+import lt.rildev.movieappbe.util.UrlUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 @Service
-public class YoutubeVideoDownloaderService implements YoutubeVideoService {
+public class YoutubeVideoDownloaderService implements DownloadService {
 
     private final String executable;
     private final Path outputDirectory;
@@ -37,7 +36,7 @@ public class YoutubeVideoDownloaderService implements YoutubeVideoService {
 
     @Override
     public Path download(String videoUrl) {
-        validateYoutubeUrl(videoUrl);
+        UrlUtil.validateYoutubeUrl(videoUrl);
 
         try {
             Files.createDirectories(outputDirectory);
@@ -103,28 +102,4 @@ public class YoutubeVideoDownloaderService implements YoutubeVideoService {
                 ));
     }
 
-    private void validateYoutubeUrl(String videoUrl) {
-        if (videoUrl == null || videoUrl.isBlank()) {
-            throw new IllegalArgumentException("YouTube URL must not be blank");
-        }
-
-        URI uri;
-        try {
-            uri = URI.create(videoUrl.trim());
-        } catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException("Invalid YouTube URL", exception);
-        }
-
-        String host = uri.getHost();
-        if (host == null || !isYoutubeHost(host.toLowerCase(Locale.ROOT))) {
-            throw new IllegalArgumentException("Only YouTube URLs are supported");
-        }
-    }
-
-    private boolean isYoutubeHost(String host) {
-        return host.equals("youtube.com")
-                || host.endsWith(".youtube.com")
-                || host.equals("youtu.be")
-                || host.endsWith(".youtu.be");
-    }
 }

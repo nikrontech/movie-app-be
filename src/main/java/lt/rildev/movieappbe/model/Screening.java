@@ -1,7 +1,10 @@
 package lt.rildev.movieappbe.model;
 
+import lombok.Builder;
+
 import java.time.Instant;
 
+@Builder
 public record Screening(
         String id,
         String movieId,
