@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: movie-app-be
+  mongodb:
+    uri: mongodb://admin:changeme@localhost:27017/movieApp?authSource=admin
+
+url:
+  api:
+    cinemas:
+      pasaka:
+        films: "https://api.pasaka.lt/movies?include=mpaaRating,genres,collections&project_identifier=pasaka"
+        filters: "https://api.pasaka.lt/filters?project_identifier=pasaka"
+
+youtube:
+  downloader:
+    executable: yt-dlp
+    output-directory: ./downloads/trailers
+    format: "bestvideo*+bestaudio/best"
+    extractor-args: "youtube:player_client=android"
+    timeout-seconds: 300
+
+cinema:
+  sync:
+    pasaka:
+      initial-delay-ms: 1000
+      fixed-delay-ms: 60000

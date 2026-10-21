@@ -1,0 +1,32 @@
+package lt.rildev.movieappbe.model;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.Instant;
+import java.util.List;
+
+@Document(collection = "movies")
+public record Movie(
+        @Id
+        String id,
+        String provider,
+        String title,
+        String originalTitle,
+        String slug,
+        String detailUrl,
+        Integer durationMinutes,
+        String description,
+        String shortDescription,
+        Instant releaseDate,
+        Integer releaseYear,
+        List<Genre> genres,
+        AgeRating ageRating,
+        String posterUrl,
+        String externalTrailerUrl,
+        String trailerPath,
+        String downloadedPosterPath,
+        Boolean premiere,
+        List<Screening> screenings
+) {
+}
