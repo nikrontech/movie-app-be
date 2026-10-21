@@ -6,8 +6,6 @@ import lt.rildev.movieappbe.service.MergedMovieService;
 import lt.rildev.movieappbe.service.MovieService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.text.Normalizer;
@@ -23,7 +21,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-@ConditionalOnProperty(name = "cinema.merge.enabled", havingValue = "true", matchIfMissing = true)
 public class MovieMergeTask {
 
     private static final Logger log = LoggerFactory.getLogger(MovieMergeTask.class);
@@ -39,10 +36,6 @@ public class MovieMergeTask {
         this.mergedMovieService = mergedMovieService;
     }
 
-    @Scheduled(
-            initialDelayString = "${cinema.merge.initial-delay-ms:10000}",
-            fixedDelayString = "${cinema.merge.fixed-delay-ms:60000}"
-    )
     public void mergeMovies() {
         try {
             Map<String, List<Movie>> groups = new LinkedHashMap<>();
