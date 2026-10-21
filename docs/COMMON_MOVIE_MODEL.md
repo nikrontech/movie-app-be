@@ -33,7 +33,7 @@ Movie:
     code: string|null
     description: string|null
 
-  posterUrl: string|null
+  externalPosterUrl: string|null
   externalTrailerUrl: string|null
   isPremiere: boolean|null
 
@@ -78,7 +78,7 @@ Screening:
 | `releaseYear` | `release_year` | derive from `ReleaseDate` when needed | `yearOfProduction` |
 | `genres` | `genres[]` | `FilmParams` entries linked to `/rusis/...` | `genres` |
 | `ageRating.code` | `mpaa_rating.name` | `CertificateAge` / `FilmParams` | `ageLongDescription` / ratings |
-| `posterUrl` | `image.poster` or `image.thumb` | `Poster` | `posters` / `posPosters` |
+| `externalPosterUrl` | `image.poster` or `image.thumb` | `Poster` | `posters` / `posPosters` |
 | `externalTrailerUrl` | `trailer_link` | `TrailerUrl` | `trailers` |
 | `isPremiere` | `premiere` | infer from `PromoLabels` or release data | infer from premiere dates/tags |
 | `id` | `slug` | `FilmId` | `id` |

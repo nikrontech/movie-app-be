@@ -24,10 +24,10 @@ public record Movie(
         Integer releaseYear,
         List<Genre> genres,
         AgeRating ageRating,
-        String posterUrl,
+        String externalPosterUrl,
         String externalTrailerUrl,
         String trailerPath,
-        String downloadedPosterPath,
+        String posterPath,
         Boolean premiere,
         List<Screening> screenings
 ) {
