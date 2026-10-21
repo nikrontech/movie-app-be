@@ -51,13 +51,13 @@ video:
 cinema:
   sync:
     initial-delay-ms: 1000
-    fixed-delay-ms: 3600000
+    fixed-delay-ms: 14400000
     pasaka:
-      enabled: false
+      enabled: true
     vue:
-      enabled: false
+      enabled: true
     forum:
-      enabled: false
+      enabled: true
   merge:
     enabled: true
   omdb:
