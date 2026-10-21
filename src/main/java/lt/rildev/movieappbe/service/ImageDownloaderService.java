@@ -29,7 +29,7 @@ public class ImageDownloaderService implements DownloadService {
 
     public ImageDownloaderService(
             RestClient restClient,
-            @Value("${image.downloader.output-directory:./downloads/posters}") String outputDirectory,
+            @Value("${image.downloader.output-directory:./downloads/images}") String outputDirectory,
             @Value("${image.downloader.max-file-size-bytes:10485760}") long maxFileSizeBytes
     ) {
         this.restClient = restClient;

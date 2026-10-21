@@ -39,7 +39,7 @@ youtube:
 
 image:
   downloader:
-    output-directory: ./downloads/posters
+    output-directory: ./downloads/images
     max-file-size-bytes: 10485760
 
 video:
