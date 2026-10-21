@@ -2,8 +2,8 @@ package lt.rildev.movieappbe.task;
 
 import lt.rildev.movieappbe.provider.ForumDataProvider;
 import lt.rildev.movieappbe.service.ImageDownloaderService;
-import lt.rildev.movieappbe.service.MovieService;
 import lt.rildev.movieappbe.service.MovieMediaService;
+import lt.rildev.movieappbe.service.MovieService;
 import lt.rildev.movieappbe.service.YoutubeVideoDownloaderService;
 import org.springframework.stereotype.Component;
 

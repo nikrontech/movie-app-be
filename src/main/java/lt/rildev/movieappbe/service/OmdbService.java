@@ -2,32 +2,24 @@ package lt.rildev.movieappbe.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import lt.rildev.movieappbe.model.Movie;
 import lt.rildev.movieappbe.model.MovieRating;
 import lt.rildev.movieappbe.model.RatingSource;
-import lt.rildev.movieappbe.omdb.OmdbMovie;
 import lt.rildev.movieappbe.omdb.OmdbLookup;
+import lt.rildev.movieappbe.omdb.OmdbMovie;
 import lt.rildev.movieappbe.omdb.OmdbRating;
 import lt.rildev.movieappbe.repository.OmdbLookupRepository;
 import lt.rildev.movieappbe.repository.OmdbMovieRepository;
-import lt.rildev.movieappbe.util.HttpClientUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -37,7 +29,7 @@ public class OmdbService {
     private static final Pattern YEAR_PATTERN = Pattern.compile("\\b(19|20)\\d{2}\\b");
     private static final Pattern NON_ALPHANUMERIC = Pattern.compile("[^a-zA-Z0-9À-ž]+", Pattern.UNICODE_CHARACTER_CLASS);
 
-    private final HttpClient httpClient;
+    private final RestClient restClient;
     private final ObjectMapper objectMapper;
     private final OmdbMovieRepository repository;
     private final OmdbLookupRepository lookupRepository;
@@ -47,7 +39,7 @@ public class OmdbService {
     private final long notFoundCooldownHours;
 
     public OmdbService(
-            HttpClient httpClient,
+            RestClient restClient,
             ObjectMapper objectMapper,
             OmdbMovieRepository repository,
             OmdbLookupRepository lookupRepository,
@@ -56,7 +48,7 @@ public class OmdbService {
             @Value("${omdb.enabled:true}") boolean enabled,
             @Value("${omdb.not-found-cooldown-hours:24}") long notFoundCooldownHours
     ) {
-        this.httpClient = httpClient;
+        this.restClient = restClient;
         this.objectMapper = objectMapper;
         this.repository = repository;
         this.lookupRepository = lookupRepository;
@@ -147,17 +139,13 @@ public class OmdbService {
         }
 
         try {
-            HttpRequest request = HttpRequest.newBuilder(URI.create(url.toString()))
+            org.springframework.http.ResponseEntity<String> response = restClient.get()
+                    .uri(url.toString())
                     .header("Accept", "application/json")
-                    .GET()
-                    .build();
-            HttpResponse<String> response = HttpClientUtil.send(
-                    httpClient,
-                    request,
-                    HttpResponse.BodyHandlers.ofString()
-            );
-            JsonNode json = objectMapper.readTree(response.body());
-            if (response.statusCode() < 200 || response.statusCode() >= 300
+                    .retrieve()
+                    .toEntity(String.class);
+            JsonNode json = objectMapper.readTree(response.getBody());
+            if (response.getStatusCode().value() < 200 || response.getStatusCode().value() >= 300
                     || !"True".equalsIgnoreCase(text(json, "Response"))) {
                 log.warn("OMDb rating not found for '{}' ({})", title, year);
                 return null;
@@ -183,10 +171,7 @@ public class OmdbService {
             OmdbMovie saved = repository.save(result);
             log.info("Saved OMDb rating for '{}' ({}) with IMDb ID {}", title, year, saved.imdbId());
             return saved;
-        } catch (IOException | InterruptedException exception) {
-            if (exception instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
+        } catch (IOException exception) {
             log.warn("Could not fetch OMDb rating for {}", title, exception);
             return null;
         }

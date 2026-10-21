@@ -2,20 +2,12 @@ package lt.rildev.movieappbe.provider;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lt.rildev.movieappbe.model.AgeRating;
-import lt.rildev.movieappbe.model.Cinema;
-import lt.rildev.movieappbe.model.Genre;
-import lt.rildev.movieappbe.model.Movie;
-import lt.rildev.movieappbe.model.Screening;
-import lt.rildev.movieappbe.util.HttpClientUtil;
+import lt.rildev.movieappbe.model.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -28,7 +20,7 @@ public class ForumDataProvider implements CinemaDataProvider {
     private static final String PROVIDER = "forum";
     private static final String API_BASE_URL = "https://restapi.forumcinemas.lt/api";
 
-    private final HttpClient httpClient;
+    private final RestClient restClient;
     private final ObjectMapper objectMapper;
 
     @Value("${url.api.cinemas.forum.cinemas:https://restapi.forumcinemas.lt/api/cinema}")
@@ -40,8 +32,8 @@ public class ForumDataProvider implements CinemaDataProvider {
     @Value("${url.api.cinemas.forum.genres:https://restapi.forumcinemas.lt/api/genres}")
     private String genresUrl;
 
-    public ForumDataProvider(HttpClient httpClient, ObjectMapper objectMapper) {
-        this.httpClient = httpClient;
+    public ForumDataProvider(RestClient restClient, ObjectMapper objectMapper) {
+        this.restClient = restClient;
         this.objectMapper = objectMapper;
     }
 
@@ -209,24 +201,16 @@ public class ForumDataProvider implements CinemaDataProvider {
 
     private JsonNode get(String url) {
         try {
-            HttpRequest request = HttpRequest.newBuilder(URI.create(url))
+            String body = restClient.get()
+                    .uri(url)
                     .header("Accept", "application/json")
-                    .GET()
-                    .build();
-            HttpResponse<String> response = HttpClientUtil.send(
-                    httpClient,
-                    request,
-                    HttpResponse.BodyHandlers.ofString()
-            );
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                throw new IllegalStateException("Forum Cinemas API returned HTTP status " + response.statusCode());
-            }
-            return objectMapper.readTree(response.body());
+                    .retrieve()
+                    .body(String.class);
+            return objectMapper.readTree(body);
         } catch (IOException exception) {
             throw new IllegalStateException("Could not read Forum Cinemas API response", exception);
-        } catch (InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("Forum Cinemas API request was interrupted", exception);
+        } catch (RuntimeException exception) {
+            throw new IllegalStateException("Could not fetch Forum Cinemas API response", exception);
         }
     }
 

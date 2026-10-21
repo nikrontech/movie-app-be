@@ -3,16 +3,11 @@ package lt.rildev.movieappbe.provider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lt.rildev.movieappbe.model.*;
-import lt.rildev.movieappbe.util.HttpClientUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -35,7 +30,7 @@ public class VueDataProvider implements CinemaDataProvider {
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final Pattern MINUTES_PATTERN = Pattern.compile("(\\d+)\\s*min\\.", Pattern.CASE_INSENSITIVE);
 
-    private final HttpClient httpClient;
+    private final RestClient restClient;
     private final ObjectMapper objectMapper;
 
     @Value("${url.api.cinemas.vue.cinemas:https://vuekinas.lt/api/sitecore/WhatsOn/WhatsOnV2GetCinemas}")
@@ -47,8 +42,8 @@ public class VueDataProvider implements CinemaDataProvider {
     @Value("${url.api.cinemas.vue.films:https://vuekinas.lt/api/sitecore/WhatsOn/WhatsOnV2Alphabetic?cinemaId=1001}")
     private String filmsUrl;
 
-    public VueDataProvider(HttpClient httpClient, ObjectMapper objectMapper) {
-        this.httpClient = httpClient;
+    public VueDataProvider(RestClient restClient, ObjectMapper objectMapper) {
+        this.restClient = restClient;
         this.objectMapper = objectMapper;
     }
 
@@ -228,25 +223,16 @@ public class VueDataProvider implements CinemaDataProvider {
 
     private JsonNode get(String url) {
         try {
-            HttpRequest request = HttpRequest.newBuilder(URI.create(url))
-                    .timeout(Duration.ofSeconds(30))
+            String body = restClient.get()
+                    .uri(url)
                     .header("Accept", "application/json")
-                    .GET()
-                    .build();
-            HttpResponse<String> response = HttpClientUtil.send(
-                    httpClient,
-                    request,
-                    HttpResponse.BodyHandlers.ofString()
-            );
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                throw new IllegalStateException("VUE API returned HTTP status " + response.statusCode());
-            }
-            return objectMapper.readTree(response.body());
+                    .retrieve()
+                    .body(String.class);
+            return objectMapper.readTree(body);
         } catch (IOException exception) {
             throw new IllegalStateException("Could not read VUE API response", exception);
-        } catch (InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("VUE API request was interrupted", exception);
+        } catch (RuntimeException exception) {
+            throw new IllegalStateException("Could not fetch VUE API response", exception);
         }
     }
 

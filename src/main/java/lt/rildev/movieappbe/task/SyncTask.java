@@ -1,12 +1,12 @@
 package lt.rildev.movieappbe.task;
 
+import lombok.extern.slf4j.Slf4j;
 import lt.rildev.movieappbe.model.Movie;
 import lt.rildev.movieappbe.provider.CinemaDataProvider;
 import lt.rildev.movieappbe.service.DownloadService;
 import lt.rildev.movieappbe.service.ImageDownloaderService;
 import lt.rildev.movieappbe.service.MovieMediaService;
 import lt.rildev.movieappbe.service.MovieService;
-import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.util.List;

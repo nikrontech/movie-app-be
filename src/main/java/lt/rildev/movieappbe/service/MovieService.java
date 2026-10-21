@@ -1,8 +1,8 @@
 package lt.rildev.movieappbe.service;
 
+import lombok.extern.slf4j.Slf4j;
 import lt.rildev.movieappbe.model.Movie;
 import lt.rildev.movieappbe.repository.MovieRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

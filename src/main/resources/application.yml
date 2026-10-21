@@ -5,8 +5,7 @@ spring:
     uri: mongodb://admin:changeme@localhost:27017/movieApp?authSource=admin
 
 logging:
-  level:
-    lt.rildev.movieappbe.util.HttpClientUtil: INFO
+  level: {}
 
 omdb:
   enabled: true

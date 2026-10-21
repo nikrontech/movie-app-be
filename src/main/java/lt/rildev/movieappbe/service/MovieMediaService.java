@@ -1,7 +1,7 @@
 package lt.rildev.movieappbe.service;
 
-import lt.rildev.movieappbe.model.Movie;
 import lombok.extern.slf4j.Slf4j;
+import lt.rildev.movieappbe.model.Movie;
 import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;

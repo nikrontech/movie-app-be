@@ -1,8 +1,8 @@
 package lt.rildev.movieappbe.util;
 
 import java.net.URI;
-import java.util.Set;
 import java.util.Locale;
+import java.util.Set;
 
 public final class UrlUtil {
 

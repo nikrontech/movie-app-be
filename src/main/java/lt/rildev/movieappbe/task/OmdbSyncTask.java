@@ -1,9 +1,9 @@
 package lt.rildev.movieappbe.task;
 
+import lombok.extern.slf4j.Slf4j;
 import lt.rildev.movieappbe.model.MergedMovie;
 import lt.rildev.movieappbe.service.MergedMovieService;
 import lt.rildev.movieappbe.service.OmdbService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -2,29 +2,17 @@ package lt.rildev.movieappbe.provider;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lt.rildev.movieappbe.model.AgeRating;
-import lt.rildev.movieappbe.model.Cinema;
-import lt.rildev.movieappbe.model.Genre;
-import lt.rildev.movieappbe.model.Movie;
-import lt.rildev.movieappbe.model.Screening;
-import lt.rildev.movieappbe.util.HttpClientUtil;
+import lt.rildev.movieappbe.model.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
@@ -36,7 +24,7 @@ public class PasakaDataProvider implements CinemaDataProvider {
     private static final DateTimeFormatter PASAKA_DATE_TIME =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    private final HttpClient httpClient;
+    private final RestClient restClient;
     private final ObjectMapper objectMapper;
     private final Map<String, Movie> movieDetailsCache = new ConcurrentHashMap<>();
 
@@ -46,8 +34,8 @@ public class PasakaDataProvider implements CinemaDataProvider {
     @Value("${url.api.cinemas.pasaka.filters:https://api.pasaka.lt/filters?project_identifier=pasaka}")
     private String filtersUrl;
 
-    public PasakaDataProvider(HttpClient httpClient, ObjectMapper objectMapper) {
-        this.httpClient = httpClient;
+    public PasakaDataProvider(RestClient restClient, ObjectMapper objectMapper) {
+        this.restClient = restClient;
         this.objectMapper = objectMapper;
     }
 
@@ -242,28 +230,16 @@ public class PasakaDataProvider implements CinemaDataProvider {
 
     private JsonNode get(String url) {
         try {
-            HttpRequest request = HttpRequest.newBuilder(URI.create(url))
+            String body = restClient.get()
+                    .uri(url)
                     .header("Accept", "application/json")
-                    .GET()
-                    .build();
-            HttpResponse<String> response = HttpClientUtil.send(
-                    httpClient,
-                    request,
-                    HttpResponse.BodyHandlers.ofString()
-            );
-
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                throw new IllegalStateException(
-                        "Pasaka API returned HTTP status " + response.statusCode()
-                );
-            }
-
-            return objectMapper.readTree(response.body());
+                    .retrieve()
+                    .body(String.class);
+            return objectMapper.readTree(body);
         } catch (IOException exception) {
             throw new IllegalStateException("Could not read Pasaka API response", exception);
-        } catch (InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("Pasaka API request was interrupted", exception);
+        } catch (RuntimeException exception) {
+            throw new IllegalStateException("Could not fetch Pasaka API response", exception);
         }
     }
 

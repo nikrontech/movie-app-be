@@ -1,8 +1,8 @@
 package lt.rildev.movieappbe.service;
 
+import lombok.extern.slf4j.Slf4j;
 import lt.rildev.movieappbe.util.UrlUtil;
 import org.springframework.beans.factory.annotation.Value;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
