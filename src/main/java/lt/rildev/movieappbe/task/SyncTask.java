@@ -61,19 +61,19 @@ public abstract class SyncTask {
                     })
                     .toList();
 
-            long downloadedVideos = movies.stream()
+            long moviesWithVideos = movies.stream()
                     .filter(movie -> movie.trailerPath() != null)
                     .count();
-            long downloadedPosters = movies.stream()
+            long moviesWithPosters = movies.stream()
                     .filter(movie -> movie.posterPath() != null)
                     .count();
 
             log.info(
-                    "Synchronized {} catalog: {} movies, {} downloaded trailers, {} downloaded posters",
+                    "Synchronized {} catalog: {} movies, {} with trailers, {} with posters",
                     cinema.displayName(),
                     movies.size(),
-                    downloadedVideos,
-                    downloadedPosters
+                    moviesWithVideos,
+                    moviesWithPosters
             );
         } catch (RuntimeException exception) {
             log.error("Could not update {} catalog", cinema.displayName(), exception);

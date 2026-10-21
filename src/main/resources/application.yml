@@ -6,7 +6,7 @@ spring:
 
 logging:
   level:
-    lt.rildev.movieappbe.util.HttpClientUtil: DEBUG
+    lt.rildev.movieappbe.util.HttpClientUtil: INFO
 
 url:
   api:
