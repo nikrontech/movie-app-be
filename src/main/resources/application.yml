@@ -27,5 +27,6 @@ image:
 cinema:
   sync:
     pasaka:
+      enabled: false
       initial-delay-ms: 1000
       fixed-delay-ms: 60000
