@@ -24,7 +24,7 @@ public class YoutubeVideoDownloaderService implements DownloadService {
 
     public YoutubeVideoDownloaderService(
             @Value("${youtube.downloader.executable:yt-dlp}") String executable,
-            @Value("${youtube.downloader.output-directory:./downloads/trailers}") String outputDirectory,
+            @Value("${youtube.downloader.output-directory:./downloads/videos}") String outputDirectory,
             @Value("${youtube.downloader.format:bestvideo*+bestaudio/best}") String format,
             @Value("${youtube.downloader.extractor-args:youtube:player_client=android}") String extractorArgs,
             @Value("${youtube.downloader.timeout-seconds:300}") long timeoutSeconds

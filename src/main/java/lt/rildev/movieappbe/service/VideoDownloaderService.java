@@ -22,7 +22,7 @@ public class VideoDownloaderService implements DownloadService {
 
     public VideoDownloaderService(
             RestClient restClient,
-            @Value("${video.downloader.output-directory:./downloads/trailers}") String outputDirectory,
+            @Value("${video.downloader.output-directory:./downloads/videos}") String outputDirectory,
             @Value("${video.downloader.max-file-size-bytes:524288000}") long maxFileSizeBytes
     ) {
         this.restClient = restClient;

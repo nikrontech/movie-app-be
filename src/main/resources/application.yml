@@ -32,7 +32,7 @@ url:
 youtube:
   downloader:
     executable: yt-dlp
-    output-directory: ./downloads/trailers
+    output-directory: ./downloads/videos
     format: "bestvideo*+bestaudio/best"
     extractor-args: "youtube:player_client=android"
     timeout-seconds: 300
@@ -44,7 +44,7 @@ image:
 
 video:
   downloader:
-    output-directory: ./downloads/trailers
+    output-directory: ./downloads/videos
     max-file-size-bytes: 524288000
 
 cinema:
