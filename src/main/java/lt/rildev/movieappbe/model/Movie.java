@@ -25,9 +25,11 @@ public record Movie(
         List<Genre> genres,
         AgeRating ageRating,
         String externalPosterUrl,
+        String externalThumbnailUrl,
         String externalTrailerUrl,
         String trailerPath,
         String posterPath,
+        String thumbnailPath,
         Boolean premiere,
         List<Screening> screenings
 ) {

@@ -185,6 +185,7 @@ public class PasakaDataProvider implements CinemaDataProvider {
                         .description(text(rating, "description"))
                         .build())
                 .externalPosterUrl(firstText(image, "poster", "thumb", "original"))
+                .externalThumbnailUrl(firstText(image, "thumb", "poster", "original"))
                 .externalTrailerUrl(text(movie, "trailer_link"))
                 .screenings(mapScreenings(movie.path("events"), qualifiedId(slug)))
                 .premiere(booleanValue(movie, "premiere"))

@@ -70,7 +70,9 @@ public class MovieMergeTask {
                 .genres(preferred.genres())
                 .ageRating(preferred.ageRating())
                 .externalPosterUrl(firstNonBlank(movies, Movie::externalPosterUrl))
+                .externalThumbnailUrl(firstNonBlank(movies, Movie::externalThumbnailUrl))
                 .externalTrailerUrl(firstNonBlank(movies, Movie::externalTrailerUrl))
+                .thumbnailPath(firstNonBlank(movies, Movie::thumbnailPath))
                 .sourceMovieIds(movies.stream().map(Movie::id).toList())
                 .providers(new ArrayList<>(providers))
                 .screenings(movies.stream().flatMap(movie -> movie.screenings().stream()).toList())
@@ -81,8 +83,18 @@ public class MovieMergeTask {
         String title = movie.originalTitle();
         if (title == null || title.isBlank()) title = parenthesizedTitle(movie.title());
         if (title == null || title.isBlank()) title = movie.title();
+        String normalizedTitle = normalize(title);
+
+        if (normalizedTitle.isBlank()) {
+            normalizedTitle = normalize(movie.title());
+        }
+
+        if (normalizedTitle.isBlank()) {
+            normalizedTitle = movie.provider() + ":" + movie.id();
+        }
+
         String year = movie.releaseYear() == null ? "unknown" : movie.releaseYear().toString();
-        return normalize(title) + ":" + year;
+        return normalizedTitle + ":" + year;
     }
 
     private String normalize(String value) {
@@ -103,7 +115,11 @@ public class MovieMergeTask {
         Matcher matcher = PARENTHESIZED.matcher(title);
         String result = null;
         while (matcher.find()) result = matcher.group(1);
-        return result == null ? title : result;
+
+        if (result == null || normalize(result).isBlank()) {
+            return title;
+        }
+        return result;
     }
 
     private String cleanDisplayTitle(String title) {

@@ -51,10 +51,12 @@ public abstract class SyncTask {
                         Movie updatedMovie = movie.toBuilder()
                                 .trailerPath(savedMovie == null ? null : savedMovie.trailerPath())
                                 .posterPath(savedMovie == null ? null : savedMovie.posterPath())
+                                .thumbnailPath(savedMovie == null ? null : savedMovie.thumbnailPath())
                                 .build();
                         updatedMovie = movieMediaService.reuseDownloadedMedia(updatedMovie, existingMovies);
                         updatedMovie = downloadTrailer(updatedMovie);
                         updatedMovie = downloadPoster(updatedMovie);
+                        updatedMovie = downloadThumbnail(updatedMovie);
                         movieService.save(updatedMovie);
                         log.debug("Saved {} movie {}", cinema.displayName(), updatedMovie.id());
                         return updatedMovie;
@@ -67,13 +69,17 @@ public abstract class SyncTask {
             long moviesWithPosters = movies.stream()
                     .filter(movie -> movie.posterPath() != null)
                     .count();
+            long moviesWithThumbnails = movies.stream()
+                    .filter(movie -> movie.thumbnailPath() != null)
+                    .count();
 
             log.info(
-                    "Synchronized {} catalog: {} movies, {} with trailers, {} with posters",
+                    "Synchronized {} catalog: {} movies, {} with trailers, {} with posters, {} with thumbnails",
                     cinema.displayName(),
                     movies.size(),
                     moviesWithVideos,
-                    moviesWithPosters
+                    moviesWithPosters,
+                    moviesWithThumbnails
             );
         } catch (RuntimeException exception) {
             log.error("Could not update {} catalog", cinema.displayName(), exception);
@@ -114,6 +120,25 @@ public abstract class SyncTask {
                     .build();
         } catch (RuntimeException exception) {
             log.warn("Could not download poster for movie {}", movie.id(), exception);
+            return movie;
+        }
+    }
+
+    private Movie downloadThumbnail(Movie movie) {
+        if (imageDownloader == null
+                || movie.externalThumbnailUrl() == null
+                || movie.externalThumbnailUrl().isBlank()
+                || movie.thumbnailPath() != null) {
+            return movie;
+        }
+
+        try {
+            Path thumbnail = imageDownloader.download(movie.externalThumbnailUrl());
+            return movie.toBuilder()
+                    .thumbnailPath(thumbnail.getFileName().toString())
+                    .build();
+        } catch (RuntimeException exception) {
+            log.warn("Could not download thumbnail for movie {}", movie.id(), exception);
             return movie;
         }
     }

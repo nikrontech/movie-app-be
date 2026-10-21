@@ -21,7 +21,9 @@ public record MergedMovie(
         List<Genre> genres,
         AgeRating ageRating,
         String externalPosterUrl,
+        String externalThumbnailUrl,
         String externalTrailerUrl,
+        String thumbnailPath,
         List<String> sourceMovieIds,
         List<String> providers,
         List<Screening> screenings

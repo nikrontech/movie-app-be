@@ -19,7 +19,9 @@ public class MovieMediaService {
         Movie matchingMovie = existingMovies.stream()
                 .filter(candidate -> !candidate.id().equals(movie.id()))
                 .filter(candidate -> matches(movie, candidate))
-                .filter(candidate -> candidate.trailerPath() != null || candidate.posterPath() != null)
+                .filter(candidate -> candidate.trailerPath() != null
+                        || candidate.posterPath() != null
+                        || candidate.thumbnailPath() != null)
                 .findFirst()
                 .orElse(null);
 
@@ -29,16 +31,18 @@ public class MovieMediaService {
         }
 
         log.info(
-                "Reusing downloaded media for movie {} from source movie {}: trailer={}, poster={}",
+                "Reusing downloaded media for movie {} from source movie {}: trailer={}, poster={}, thumbnail={}",
                 movie.id(),
                 matchingMovie.id(),
                 matchingMovie.trailerPath() != null,
-                matchingMovie.posterPath() != null
+                matchingMovie.posterPath() != null,
+                matchingMovie.thumbnailPath() != null
         );
 
         return movie.toBuilder()
                 .trailerPath(movie.trailerPath() == null ? matchingMovie.trailerPath() : movie.trailerPath())
                 .posterPath(movie.posterPath() == null ? matchingMovie.posterPath() : movie.posterPath())
+                .thumbnailPath(movie.thumbnailPath() == null ? matchingMovie.thumbnailPath() : movie.thumbnailPath())
                 .build();
     }
 
