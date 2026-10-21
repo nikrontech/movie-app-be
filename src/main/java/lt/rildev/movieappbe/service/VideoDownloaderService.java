@@ -3,6 +3,7 @@ package lt.rildev.movieappbe.service;
 import lt.rildev.movieappbe.util.UrlUtil;
 import lt.rildev.movieappbe.util.HttpClientUtil;
 import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class VideoDownloaderService implements DownloadService {
 
@@ -34,6 +36,7 @@ public class VideoDownloaderService implements DownloadService {
 
     @Override
     public Path download(String videoUrl) {
+        log.debug("Downloading direct video {}", videoUrl);
         URI uri = UrlUtil.validateHttpUrl(videoUrl);
 
         try {
@@ -63,6 +66,7 @@ public class VideoDownloaderService implements DownloadService {
 
             Path file = outputDirectory.resolve(UUID.randomUUID() + ".mp4");
             Files.write(file, video);
+            log.info("Downloaded video {} to {}", videoUrl, file);
             return file;
         } catch (IOException exception) {
             throw new IllegalStateException("Could not download video", exception);

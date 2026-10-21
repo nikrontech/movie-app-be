@@ -2,11 +2,13 @@ package lt.rildev.movieappbe.service;
 
 import lt.rildev.movieappbe.model.Movie;
 import lt.rildev.movieappbe.repository.MovieRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class MovieService {
 
@@ -17,7 +19,9 @@ public class MovieService {
     }
 
     public Movie save(Movie movie) {
-        return movieRepository.save(movie);
+        Movie savedMovie = movieRepository.save(movie);
+        log.debug("Saved movie {} from provider {}", savedMovie.id(), savedMovie.provider());
+        return savedMovie;
     }
 
     public Optional<Movie> findById(String id) {

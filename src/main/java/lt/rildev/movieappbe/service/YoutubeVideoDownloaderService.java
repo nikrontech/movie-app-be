@@ -2,6 +2,7 @@ package lt.rildev.movieappbe.service;
 
 import lt.rildev.movieappbe.util.UrlUtil;
 import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class YoutubeVideoDownloaderService implements DownloadService {
 
@@ -36,6 +38,7 @@ public class YoutubeVideoDownloaderService implements DownloadService {
 
     @Override
     public Path download(String videoUrl) {
+        log.debug("Downloading video with yt-dlp: {}", videoUrl);
         UrlUtil.validateVideoUrl(videoUrl);
 
         try {
@@ -88,7 +91,9 @@ public class YoutubeVideoDownloaderService implements DownloadService {
             throw new IllegalStateException("Video download failed: " + output.trim());
         }
 
-        return findDownloadedFile(output);
+        Path file = findDownloadedFile(output);
+        log.info("Downloaded video {} to {}", videoUrl, file);
+        return file;
     }
 
     private Path findDownloadedFile(String processOutput) {
