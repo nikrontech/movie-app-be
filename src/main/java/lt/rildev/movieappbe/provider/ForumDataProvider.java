@@ -71,7 +71,7 @@ public class ForumDataProvider implements CinemaDataProvider {
         for (JsonNode movieNode : get(moviesUrl)) {
             Movie movie = mapMovie(movieNode);
             List<Screening> screenings = cinemas.stream()
-                    .flatMap(cinema -> getCinemaScreenings(cinema.id(), start, end).stream())
+                    .flatMap(cinema -> getCinemaScreenings(cinema, start, end).stream())
                     .filter(screening -> movie.id().equals(screening.movieId()))
                     .toList();
 
@@ -98,7 +98,11 @@ public class ForumDataProvider implements CinemaDataProvider {
     public List<Screening> getScreenings(String cinemaId, Instant from, Instant to) {
         Instant start = from == null ? Instant.now() : from;
         Instant end = to == null ? start.plusSeconds(30 * 24 * 60 * 60L) : to;
-        return getCinemaScreenings(cinemaId, start, end);
+        Cinema cinema = getCinemas().stream()
+                .filter(item -> cinemaId.equals(item.id()))
+                .findFirst()
+                .orElse(Cinema.builder().id(cinemaId).build());
+        return getCinemaScreenings(cinema, start, end);
     }
 
     @Override
@@ -112,7 +116,11 @@ public class ForumDataProvider implements CinemaDataProvider {
         Instant end = to == null ? start.plusSeconds(30 * 24 * 60 * 60L) : to;
         String url = API_BASE_URL + "/cinema/" + cinemaId + "/movie/" + sourceId(movieId)
                 + "/screening?dateTimeFrom=" + start + "&dateTimeTo=" + end;
-        return mapScreenings(get(url));
+        Cinema cinema = getCinemas().stream()
+                .filter(item -> cinemaId.equals(item.id()))
+                .findFirst()
+                .orElse(Cinema.builder().id(cinemaId).build());
+        return mapScreenings(get(url), cinema);
     }
 
     @Override
@@ -163,13 +171,13 @@ public class ForumDataProvider implements CinemaDataProvider {
                 .build();
     }
 
-    private List<Screening> getCinemaScreenings(String cinemaId, Instant from, Instant to) {
-        String url = API_BASE_URL + "/cinema/" + cinemaId + "/screening"
+    private List<Screening> getCinemaScreenings(Cinema cinema, Instant from, Instant to) {
+        String url = API_BASE_URL + "/cinema/" + cinema.id() + "/screening"
                 + "?dateTimeFrom=" + from + "&dateTimeTo=" + to;
-        return mapScreenings(get(url));
+        return mapScreenings(get(url), cinema);
     }
 
-    private List<Screening> mapScreenings(JsonNode screenings) {
+    private List<Screening> mapScreenings(JsonNode screenings, Cinema cinema) {
         List<Screening> result = new ArrayList<>();
         for (JsonNode screening : screenings) {
             String movieId = text(screening, "movieId");
@@ -177,7 +185,7 @@ public class ForumDataProvider implements CinemaDataProvider {
             result.add(Screening.builder()
                     .id(PROVIDER + ":" + text(screening, "id"))
                     .movieId(PROVIDER + ":" + movieId)
-                    .cinema(Cinema.builder().id(text(screening, "cinemaId")).build())
+                    .cinema(cinema)
                     .startsAt(parseDate(text(screening, "screeningTimeFrom")))
                     .endsAt(parseDate(text(screening, "screeningTimeTo")))
                     .screen(text(screening, "screenId"))

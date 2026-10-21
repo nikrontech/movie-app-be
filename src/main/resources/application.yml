@@ -45,14 +45,18 @@ video:
 cinema:
   sync:
     pasaka:
-      enabled: false
+      enabled: true
       initial-delay-ms: 1000
       fixed-delay-ms: 3600000
     vue:
-      enabled: false
+      enabled: true
       initial-delay-ms: 1000
       fixed-delay-ms: 3600000
     forum:
-      enabled: false
+      enabled: true
       initial-delay-ms: 1000
       fixed-delay-ms: 3600000
+  merge:
+    enabled: true
+    initial-delay-ms: 1000
+    fixed-delay-ms: 3600000

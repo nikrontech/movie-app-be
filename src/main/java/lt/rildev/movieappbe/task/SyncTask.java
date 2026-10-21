@@ -8,11 +8,7 @@ import lt.rildev.movieappbe.service.MovieService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class SyncTask {
 
@@ -21,8 +17,6 @@ public abstract class SyncTask {
     private final MovieService movieService;
     private final DownloadService videoDownloader;
     private final ImageDownloaderService imageDownloader;
-    private final Map<String, Path> downloadedVideos = new ConcurrentHashMap<>();
-    private final Map<String, Path> downloadedPosters = new ConcurrentHashMap<>();
 
     protected SyncTask(
             CinemaDataProvider dataProvider,
@@ -40,7 +34,12 @@ public abstract class SyncTask {
         try {
             List<Movie> movies = dataProvider.getMovies(null, null, null).stream()
                     .map(movie -> {
-                        Movie updatedMovie = downloadTrailer(movie);
+                        Movie savedMovie = movieService.findById(movie.id()).orElse(null);
+                        Movie updatedMovie = movie.toBuilder()
+                                .trailerPath(savedMovie == null ? null : savedMovie.trailerPath())
+                                .posterPath(savedMovie == null ? null : savedMovie.posterPath())
+                                .build();
+                        updatedMovie = downloadTrailer(updatedMovie);
                         updatedMovie = downloadPoster(updatedMovie);
                         movieService.save(updatedMovie);
                         return updatedMovie;
@@ -69,16 +68,13 @@ public abstract class SyncTask {
     private Movie downloadTrailer(Movie movie) {
         if (videoDownloader == null
                 || movie.externalTrailerUrl() == null
-                || movie.externalTrailerUrl().isBlank()) {
+                || movie.externalTrailerUrl().isBlank()
+                || movie.trailerPath() != null) {
             return movie;
         }
 
         try {
-            Path downloadedVideo = downloadedVideos.get(movie.id());
-            if (downloadedVideo == null || !Files.isRegularFile(downloadedVideo)) {
-                downloadedVideo = videoDownloader.download(movie.externalTrailerUrl());
-                downloadedVideos.put(movie.id(), downloadedVideo);
-            }
+            java.nio.file.Path downloadedVideo = videoDownloader.download(movie.externalTrailerUrl());
             return movie.toBuilder()
                     .trailerPath(downloadedVideo.getFileName().toString())
                     .build();
@@ -91,16 +87,13 @@ public abstract class SyncTask {
     private Movie downloadPoster(Movie movie) {
         if (imageDownloader == null
                 || movie.externalPosterUrl() == null
-                || movie.externalPosterUrl().isBlank()) {
+                || movie.externalPosterUrl().isBlank()
+                || movie.posterPath() != null) {
             return movie;
         }
 
         try {
-            Path cachedPoster = downloadedPosters.get(movie.id());
-            if (cachedPoster == null || !Files.isRegularFile(cachedPoster)) {
-                cachedPoster = imageDownloader.download(movie.externalPosterUrl());
-                downloadedPosters.put(movie.id(), cachedPoster);
-            }
+            java.nio.file.Path cachedPoster = imageDownloader.download(movie.externalPosterUrl());
             return movie.toBuilder()
                     .posterPath(cachedPoster.getFileName().toString())
                     .build();
