@@ -21,10 +21,6 @@ public final class UrlUtil {
         return uri;
     }
 
-    public static URI validateYoutubeUrl(String url) {
-        return validateVideoUrl(url);
-    }
-
     public static URI validateVideoUrl(String url) {
         URI uri = validateHttpUrl(url);
         String host = uri.getHost();
