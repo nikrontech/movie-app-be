@@ -47,10 +47,10 @@ cinema:
     initial-delay-ms: 1000
     fixed-delay-ms: 3600000
     pasaka:
-      enabled: true
+      enabled: false
     vue:
-      enabled: true
+      enabled: false
     forum:
-      enabled: true
+      enabled: false
   merge:
     enabled: true

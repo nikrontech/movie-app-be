@@ -65,8 +65,8 @@ public class MovieMergeTask {
                 .durationMinutes(preferred.durationMinutes())
                 .description(firstNonBlank(movies, Movie::description))
                 .shortDescription(firstNonBlank(movies, Movie::shortDescription))
-                .releaseDate(preferred.releaseDate())
-                .releaseYear(preferred.releaseYear())
+                .releaseDate(firstNonNull(movies, Movie::releaseDate))
+                .releaseYear(firstNonNull(movies, Movie::releaseYear))
                 .genres(preferred.genres())
                 .ageRating(preferred.ageRating())
                 .externalPosterUrl(firstNonBlank(movies, Movie::externalPosterUrl))
@@ -150,5 +150,13 @@ public class MovieMergeTask {
         return movies.stream().map(getter)
                 .filter(value -> value != null && !value.isBlank())
                 .findFirst().orElse(null);
+    }
+
+    private <T> T firstNonNull(List<Movie> movies, Function<Movie, T> getter) {
+        return movies.stream()
+                .map(getter)
+                .filter(value -> value != null)
+                .findFirst()
+                .orElse(null);
     }
 }
