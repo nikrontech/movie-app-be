@@ -6,14 +6,13 @@ import lt.rildev.movieappbe.service.DownloadService;
 import lt.rildev.movieappbe.service.ImageDownloaderService;
 import lt.rildev.movieappbe.service.MovieMediaService;
 import lt.rildev.movieappbe.service.MovieService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+import java.nio.file.Path;
 import java.util.List;
 
+@Slf4j
 public abstract class SyncTask {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
     private final CinemaDataProvider dataProvider;
     private final MovieService movieService;
     private final MovieMediaService movieMediaService;
@@ -35,9 +34,15 @@ public abstract class SyncTask {
     }
 
     protected final void synchronize(Cinema cinema) {
+        log.info("Starting {} synchronization", cinema.displayName());
         try {
             List<Movie> existingMovies = movieService.findAll();
-            List<Movie> movies = dataProvider.getMovies(null, null, null).stream()
+            log.debug("Loaded {} existing movies before {} synchronization", existingMovies.size(), cinema.displayName());
+
+            List<Movie> sourceMovies = dataProvider.getMovies(null, null, null);
+            log.info("Fetched {} movies from {}", sourceMovies.size(), cinema.displayName());
+
+            List<Movie> movies = sourceMovies.stream()
                     .map(movie -> {
                         Movie savedMovie = existingMovies.stream()
                                 .filter(existing -> existing.id().equals(movie.id()))
@@ -51,6 +56,7 @@ public abstract class SyncTask {
                         updatedMovie = downloadTrailer(updatedMovie);
                         updatedMovie = downloadPoster(updatedMovie);
                         movieService.save(updatedMovie);
+                        log.debug("Saved {} movie {}", cinema.displayName(), updatedMovie.id());
                         return updatedMovie;
                     })
                     .toList();
@@ -83,7 +89,7 @@ public abstract class SyncTask {
         }
 
         try {
-            java.nio.file.Path downloadedVideo = videoDownloader.download(movie.externalTrailerUrl());
+            Path downloadedVideo = videoDownloader.download(movie.externalTrailerUrl());
             return movie.toBuilder()
                     .trailerPath(downloadedVideo.getFileName().toString())
                     .build();
