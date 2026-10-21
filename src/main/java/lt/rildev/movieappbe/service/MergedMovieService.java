@@ -23,4 +23,12 @@ public class MergedMovieService {
         repository.saveAll(movies);
         log.info("Saved {} merged movies", movies.size());
     }
+
+    public MergedMovie save(MergedMovie movie) {
+        return repository.save(movie);
+    }
+
+    public List<MergedMovie> findAll() {
+        return repository.findAll();
+    }
 }

@@ -15,29 +15,35 @@ public class CinemaSyncTask {
     private final VueSyncTask vueSyncTask;
     private final ForumSyncTask forumSyncTask;
     private final MovieMergeTask movieMergeTask;
+    private final OmdbSyncTask omdbSyncTask;
     private final boolean pasakaEnabled;
     private final boolean vueEnabled;
     private final boolean forumEnabled;
     private final boolean mergeEnabled;
+    private final boolean omdbEnabled;
 
     public CinemaSyncTask(
             PasakaSyncTask pasakaSyncTask,
             VueSyncTask vueSyncTask,
             ForumSyncTask forumSyncTask,
             MovieMergeTask movieMergeTask,
+            OmdbSyncTask omdbSyncTask,
             @Value("${cinema.sync.pasaka.enabled:false}") boolean pasakaEnabled,
             @Value("${cinema.sync.vue.enabled:false}") boolean vueEnabled,
             @Value("${cinema.sync.forum.enabled:false}") boolean forumEnabled,
-            @Value("${cinema.merge.enabled:false}") boolean mergeEnabled
+            @Value("${cinema.merge.enabled:false}") boolean mergeEnabled,
+            @Value("${cinema.omdb.enabled:false}") boolean omdbEnabled
     ) {
         this.pasakaSyncTask = pasakaSyncTask;
         this.vueSyncTask = vueSyncTask;
         this.forumSyncTask = forumSyncTask;
         this.movieMergeTask = movieMergeTask;
+        this.omdbSyncTask = omdbSyncTask;
         this.pasakaEnabled = pasakaEnabled;
         this.vueEnabled = vueEnabled;
         this.forumEnabled = forumEnabled;
         this.mergeEnabled = mergeEnabled;
+        this.omdbEnabled = omdbEnabled;
     }
 
     @Scheduled(
@@ -57,13 +63,17 @@ public class CinemaSyncTask {
         if (mergeEnabled) {
             movieMergeTask.mergeMovies();
         }
+        if (omdbEnabled) {
+            omdbSyncTask.synchronize();
+        }
 
         log.debug(
-                "Cinema synchronization completed: Pasaka={}, VUE={}, Forum={}, Merge={}",
+                "Cinema synchronization completed: Pasaka={}, VUE={}, Forum={}, Merge={}, OMDb={}",
                 pasakaEnabled,
                 vueEnabled,
                 forumEnabled,
-                mergeEnabled
+                mergeEnabled,
+                omdbEnabled
         );
     }
 }

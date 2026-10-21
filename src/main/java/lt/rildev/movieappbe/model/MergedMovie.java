@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Document(collection = "merged_movies")
-@Builder
+@Builder(toBuilder = true)
 public record MergedMovie(
         @Id String id,
         String title,
@@ -24,6 +24,7 @@ public record MergedMovie(
         String externalThumbnailUrl,
         String externalTrailerUrl,
         String thumbnailPath,
+        MovieRating rating,
         List<String> sourceMovieIds,
         List<String> providers,
         List<Screening> screenings
