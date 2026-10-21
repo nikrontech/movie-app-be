@@ -10,6 +10,11 @@ url:
       pasaka:
         films: "https://api.pasaka.lt/movies?include=mpaaRating,genres,collections&project_identifier=pasaka"
         filters: "https://api.pasaka.lt/filters?project_identifier=pasaka"
+      vue:
+        cinemas: "https://vuekinas.lt/api/sitecore/WhatsOn/WhatsOnV2GetCinemas"
+        filters: "https://vuekinas.lt/api/sitecore/WhatsOn/WhatsOnV2GetFilters?cinemaId=1001"
+        films: "https://vuekinas.lt/api/sitecore/WhatsOn/WhatsOnV2Alphabetic?cinemaId=1001"
+        schedule: "https://vuekinas.lt/api/sitecore/WhatsOn/WhatsOnV2Hours?cinemaId=1001"
 
 youtube:
   downloader:
@@ -24,9 +29,18 @@ image:
     output-directory: ./downloads/posters
     max-file-size-bytes: 10485760
 
+video:
+  downloader:
+    output-directory: ./downloads/trailers
+    max-file-size-bytes: 524288000
+
 cinema:
   sync:
     pasaka:
       enabled: false
+      initial-delay-ms: 1000
+      fixed-delay-ms: 60000
+    vue:
+      enabled: true
       initial-delay-ms: 1000
       fixed-delay-ms: 60000
