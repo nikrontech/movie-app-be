@@ -8,7 +8,7 @@ public final class UrlUtil {
 
     private static final String HTTP = "http";
     private static final String HTTPS = "https";
-    private static final Set<String> YOUTUBE_HOSTS = Set.of("youtube.com", "youtu.be");
+    private static final Set<String> VIDEO_HOSTS = Set.of("youtube.com", "youtu.be", "vimeo.com");
 
     private UrlUtil() {
     }
@@ -22,19 +22,23 @@ public final class UrlUtil {
     }
 
     public static URI validateYoutubeUrl(String url) {
+        return validateVideoUrl(url);
+    }
+
+    public static URI validateVideoUrl(String url) {
         URI uri = validateHttpUrl(url);
         String host = uri.getHost();
 
-        if (host == null || !isYoutubeHost(host)) {
-            throw new IllegalArgumentException("Only YouTube URLs are supported");
+        if (host == null || !isSupportedVideoHost(host)) {
+            throw new IllegalArgumentException("Only YouTube and Vimeo URLs are supported");
         }
 
         return uri;
     }
 
-    private static boolean isYoutubeHost(String host) {
+    private static boolean isSupportedVideoHost(String host) {
         String normalizedHost = host.toLowerCase(Locale.ROOT);
-        return YOUTUBE_HOSTS.stream().anyMatch(
+        return VIDEO_HOSTS.stream().anyMatch(
                 supportedHost -> normalizedHost.equals(supportedHost)
                         || normalizedHost.endsWith("." + supportedHost)
         );

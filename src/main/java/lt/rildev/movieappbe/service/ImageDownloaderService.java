@@ -1,6 +1,7 @@
 package lt.rildev.movieappbe.service;
 
 import lt.rildev.movieappbe.util.UrlUtil;
+import lt.rildev.movieappbe.util.HttpClientUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +53,8 @@ public class ImageDownloaderService implements DownloadService {
                     .header("Accept", "image/*")
                     .GET()
                     .build();
-            HttpResponse<byte[]> response = httpClient.send(
+            HttpResponse<byte[]> response = HttpClientUtil.send(
+                    httpClient,
                     request,
                     HttpResponse.BodyHandlers.ofByteArray()
             );

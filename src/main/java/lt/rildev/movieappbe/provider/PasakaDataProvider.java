@@ -7,6 +7,7 @@ import lt.rildev.movieappbe.model.Cinema;
 import lt.rildev.movieappbe.model.Genre;
 import lt.rildev.movieappbe.model.Movie;
 import lt.rildev.movieappbe.model.Screening;
+import lt.rildev.movieappbe.util.HttpClientUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -244,7 +245,8 @@ public class PasakaDataProvider implements CinemaDataProvider {
                     .header("Accept", "application/json")
                     .GET()
                     .build();
-            HttpResponse<String> response = httpClient.send(
+            HttpResponse<String> response = HttpClientUtil.send(
+                    httpClient,
                     request,
                     HttpResponse.BodyHandlers.ofString()
             );

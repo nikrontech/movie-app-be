@@ -36,12 +36,12 @@ public class YoutubeVideoDownloaderService implements DownloadService {
 
     @Override
     public Path download(String videoUrl) {
-        UrlUtil.validateYoutubeUrl(videoUrl);
+        UrlUtil.validateVideoUrl(videoUrl);
 
         try {
             Files.createDirectories(outputDirectory);
         } catch (IOException exception) {
-            throw new IllegalStateException("Could not create YouTube output directory", exception);
+            throw new IllegalStateException("Could not create video output directory", exception);
         }
 
         List<String> command = List.of(
@@ -72,7 +72,7 @@ public class YoutubeVideoDownloaderService implements DownloadService {
         try {
             if (!process.waitFor(timeout)) {
                 process.destroyForcibly();
-                throw new IllegalStateException("YouTube download timed out");
+                throw new IllegalStateException("Video download timed out");
             }
             output = new String(process.getInputStream().readAllBytes());
         } catch (IOException exception) {
@@ -81,11 +81,11 @@ public class YoutubeVideoDownloaderService implements DownloadService {
         } catch (InterruptedException exception) {
             process.destroyForcibly();
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("YouTube download was interrupted", exception);
+            throw new IllegalStateException("Video download was interrupted", exception);
         }
 
         if (process.exitValue() != 0) {
-            throw new IllegalStateException("YouTube download failed: " + output.trim());
+            throw new IllegalStateException("Video download failed: " + output.trim());
         }
 
         return findDownloadedFile(output);

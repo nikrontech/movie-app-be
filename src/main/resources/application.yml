@@ -4,6 +4,10 @@ spring:
   mongodb:
     uri: mongodb://admin:changeme@localhost:27017/movieApp?authSource=admin
 
+logging:
+  level:
+    lt.rildev.movieappbe.util.HttpClientUtil: DEBUG
+
 url:
   api:
     cinemas:
@@ -15,6 +19,10 @@ url:
         filters: "https://vuekinas.lt/api/sitecore/WhatsOn/WhatsOnV2GetFilters?cinemaId=1001"
         films: "https://vuekinas.lt/api/sitecore/WhatsOn/WhatsOnV2Alphabetic?cinemaId=1001"
         schedule: "https://vuekinas.lt/api/sitecore/WhatsOn/WhatsOnV2Hours?cinemaId=1001"
+      forum:
+        cinemas: "https://restapi.forumcinemas.lt/api/cinema"
+        movies: "https://restapi.forumcinemas.lt/api/movie"
+        genres: "https://restapi.forumcinemas.lt/api/genres"
 
 youtube:
   downloader:
@@ -37,10 +45,14 @@ video:
 cinema:
   sync:
     pasaka:
-      enabled: false
+      enabled: true
       initial-delay-ms: 1000
-      fixed-delay-ms: 60000
+      fixed-delay-ms: 3600000
     vue:
       enabled: true
       initial-delay-ms: 1000
-      fixed-delay-ms: 60000
+      fixed-delay-ms: 3600000
+    forum:
+      enabled: true
+      initial-delay-ms: 1000
+      fixed-delay-ms: 3600000

@@ -3,7 +3,8 @@ package lt.rildev.movieappbe.task;
 public enum Cinema {
 
     PASAKA("Pasaka"),
-    VUE("VUE");
+    VUE("VUE"),
+    FORUM("Forum Cinemas");
 
     private final String displayName;
 
