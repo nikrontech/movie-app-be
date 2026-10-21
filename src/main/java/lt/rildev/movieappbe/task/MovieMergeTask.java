@@ -66,6 +66,8 @@ public class MovieMergeTask {
                 .externalPosterUrl(firstNonBlank(movies, Movie::externalPosterUrl))
                 .externalThumbnailUrl(firstNonBlank(movies, Movie::externalThumbnailUrl))
                 .externalTrailerUrl(firstNonBlank(movies, Movie::externalTrailerUrl))
+                .posterPath(firstNonBlank(movies, Movie::posterPath))
+                .trailerPath(firstNonBlank(movies, Movie::trailerPath))
                 .thumbnailPath(firstNonBlank(movies, Movie::thumbnailPath))
                 .sourceMovieIds(movies.stream().map(Movie::id).toList())
                 .providers(new ArrayList<>(providers))

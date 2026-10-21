@@ -23,6 +23,8 @@ public record MergedMovie(
         String externalPosterUrl,
         String externalThumbnailUrl,
         String externalTrailerUrl,
+        String posterPath,
+        String trailerPath,
         String thumbnailPath,
         MovieRating rating,
         List<String> sourceMovieIds,
