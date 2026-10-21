@@ -53,6 +53,6 @@ cinema:
       initial-delay-ms: 1000
       fixed-delay-ms: 3600000
     forum:
-      enabled: true
+      enabled: false
       initial-delay-ms: 1000
       fixed-delay-ms: 3600000
