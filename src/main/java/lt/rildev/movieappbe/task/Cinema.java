@@ -4,7 +4,8 @@ public enum Cinema {
 
     PASAKA("Pasaka"),
     VUE("VUE"),
-    FORUM("Forum Cinemas");
+    FORUM("Forum Cinemas"),
+    APOLLO("Apollo Kinas");
 
     private final String displayName;
 

@@ -57,6 +57,8 @@ cinema:
       enabled: true
     forum:
       enabled: true
+    apollo:
+      enabled: true
   merge:
     enabled: true
   omdb:
