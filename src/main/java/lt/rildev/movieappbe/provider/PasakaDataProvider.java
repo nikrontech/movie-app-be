@@ -53,6 +53,7 @@ public class PasakaDataProvider implements CinemaDataProvider {
             cinemas.add(new Cinema(
                     text(theater, "id"),
                     text(theater, "name"),
+                    text(theater, "name"),
                     text(theater, "address"),
                     lt.rildev.movieappbe.model.City.VILNIUS
             ));
@@ -195,6 +196,7 @@ public class PasakaDataProvider implements CinemaDataProvider {
                     .cinema(Cinema.builder()
                             .id(text(theater, "id"))
                             .name(text(theater, "name"))
+                            .displayName(text(theater, "name"))
                             .address(text(theater, "address"))
                             .city(lt.rildev.movieappbe.model.City.VILNIUS)
                             .build())

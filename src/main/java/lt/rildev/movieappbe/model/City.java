@@ -11,7 +11,7 @@ public enum City {
         return switch (name) {
             case "Klaipėda" -> KLAIPEDA;
             case "Šiauliai" -> SIAULIAI;
-            case "Vingis" -> VILNIUS;
+            case "Vingis", "Vilnius" -> VILNIUS;
             case "Kaunas" -> KAUNAS;
             default -> null;
         };

@@ -6,6 +6,7 @@ import lombok.Builder;
 public record Cinema(
         String id,
         String name,
+        String displayName,
         String address,
         City city
 ) {

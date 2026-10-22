@@ -197,12 +197,21 @@ public class ForumDataProvider implements CinemaDataProvider {
     }
 
     private Cinema mapCinema(JsonNode cinema) {
+        String name = text(cinema, "name");
         return Cinema.builder()
                 .id(text(cinema, "id"))
-                .name(text(cinema, "name"))
+                .name(name)
+                .displayName(displayName(name))
                 .address(text(cinema, "street"))
                 .city(lt.rildev.movieappbe.model.City.fromForumCinemaName(text(cinema, "name")))
                 .build();
+    }
+
+    private String displayName(String name) {
+        return switch (name) {
+            case "Kaunas", "Klaipėda", "Vingis", "Šiauliai" -> "Forum Cinemas";
+            default -> name;
+        };
     }
 
     private JsonNode get(String url) {
