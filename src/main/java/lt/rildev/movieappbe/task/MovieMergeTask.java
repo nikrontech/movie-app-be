@@ -37,7 +37,11 @@ public class MovieMergeTask {
                 groups.computeIfAbsent(identity(movie), ignored -> new ArrayList<>()).add(movie);
             }
 
-            List<MergedMovie> mergedMovies = groups.values().stream().map(this::merge).toList();
+            Map<String, MergedMovie> existingMovies = mergedMovieService.findAll().stream()
+                    .collect(java.util.stream.Collectors.toMap(MergedMovie::id, movie -> movie));
+            List<MergedMovie> mergedMovies = groups.values().stream()
+                    .map(movies -> merge(movies, existingMovies.get("merged:" + identity(movies.get(0)))))
+                    .toList();
             mergedMovieService.replaceAll(mergedMovies);
             log.info("Merged {} source movies into {} movies", movieService.findAll().size(), mergedMovies.size());
         } catch (RuntimeException exception) {
@@ -45,7 +49,7 @@ public class MovieMergeTask {
         }
     }
 
-    private MergedMovie merge(List<Movie> movies) {
+    private MergedMovie merge(List<Movie> movies, MergedMovie existing) {
         Movie preferred = movies.stream()
                 .max((left, right) -> Integer.compare(completeness(left), completeness(right)))
                 .orElseThrow();
@@ -57,15 +61,16 @@ public class MovieMergeTask {
                 .title(cleanDisplayTitle(preferred.title()))
                 .originalTitle(firstNonBlank(movies, Movie::originalTitle))
                 .durationMinutes(preferred.durationMinutes())
-                .description(firstNonBlank(movies, Movie::description))
+                .description(preserveDescription(firstNonBlank(movies, Movie::description), existing))
                 .shortDescription(firstNonBlank(movies, Movie::shortDescription))
-                .director(firstNonBlank(movies, Movie::director))
-                .cast(firstNonBlank(movies, Movie::cast))
-                .writer(firstNonBlank(movies, Movie::writer))
-                .country(firstNonBlank(movies, Movie::country))
-                .language(firstNonBlank(movies, Movie::language))
-                .distributor(firstNonBlank(movies, Movie::distributor))
-                .imdbId(firstNonBlank(movies, Movie::imdbId))
+                .director(preserve(firstNonBlank(movies, Movie::director), existing == null ? null : existing.director()))
+                .cast(preserve(firstNonBlank(movies, Movie::cast), existing == null ? null : existing.cast()))
+                .writer(preserve(firstNonBlank(movies, Movie::writer), existing == null ? null : existing.writer()))
+                .country(preserve(firstNonBlank(movies, Movie::country), existing == null ? null : existing.country()))
+                .language(preserve(firstNonBlank(movies, Movie::language), existing == null ? null : existing.language()))
+                .distributor(preserve(firstNonBlank(movies, Movie::distributor), existing == null ? null : existing.distributor()))
+                .imdbId(preserve(firstNonBlank(movies, Movie::imdbId), existing == null ? null : existing.imdbId()))
+                .rating(existing == null ? null : existing.rating())
                 .releaseDate(firstNonNull(movies, Movie::releaseDate))
                 .releaseYear(firstNonNull(movies, Movie::releaseYear))
                 .genres(mergeGenres(movies))
@@ -153,6 +158,20 @@ public class MovieMergeTask {
         return movies.stream().map(getter)
                 .filter(value -> value != null && !value.isBlank())
                 .findFirst().orElse(null);
+    }
+
+    private String preserve(String providerValue, String existingValue) {
+        return providerValue == null || providerValue.isBlank() ? existingValue : providerValue;
+    }
+
+    private String preserveDescription(String providerValue, MergedMovie existing) {
+        String existingValue = existing == null ? null : existing.description();
+        if (providerValue == null || providerValue.isBlank()) return existingValue;
+        if (existingValue != null && !existingValue.isBlank()
+                && providerValue.trim().endsWith("...")) {
+            return existingValue;
+        }
+        return providerValue;
     }
 
     private <T> T firstNonNull(List<Movie> movies, Function<Movie, T> getter) {
