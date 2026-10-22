@@ -209,7 +209,10 @@ public class ForumDataProvider implements CinemaDataProvider {
 
     private String displayName(String name) {
         return switch (name) {
-            case "Kaunas", "Klaipėda", "Vingis", "Šiauliai" -> "Forum Cinemas";
+            case "Kaunas" -> "Forum Cinemas Kaunas";
+            case "Klaipėda" -> "Forum Cinemas Klaipėda";
+            case "Vingis" -> "Forum Cinemas Vingis";
+            case "Šiauliai" -> "Forum Cinemas Šiauliai";
             default -> name;
         };
     }
