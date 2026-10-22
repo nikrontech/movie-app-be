@@ -1,0 +1,44 @@
+services:
+  mongodb:
+    image: mongo:8
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: changeme
+      MONGO_INITDB_DATABASE: movieApp
+    volumes:
+      - movie-app-mongo:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok' localhost:27017/admin | grep 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  movie-app-be:
+    build:
+      context: ./movie-app-be
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - movie-app-images:/app/downloads/images
+      - movie-app-videos:/app/downloads/videos
+
+  movie-app-client-be:
+    build:
+      context: ./movie-app-client-be
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    volumes:
+      - movie-app-images:/app/downloads/images:ro
+      - movie-app-videos:/app/downloads/videos:ro
+
+volumes:
+  movie-app-mongo:
+  movie-app-images:
+  movie-app-videos:
