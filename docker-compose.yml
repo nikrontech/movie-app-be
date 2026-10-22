@@ -32,8 +32,9 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
-    ports:
-      - "8080:8080"
+    networks:
+      - default
+      - home
     volumes:
       - movie-app-images:/app/downloads/images:ro
       - movie-app-videos:/app/downloads/videos:ro
@@ -42,3 +43,7 @@ volumes:
   movie-app-mongo:
   movie-app-images:
   movie-app-videos:
+
+networks:
+  home:
+    external: true
