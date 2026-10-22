@@ -50,7 +50,7 @@ video:
 cinema:
   sync:
     initial-delay-ms: 1000
-    fixed-delay-ms: 14400000
+    fixed-delay-ms: 86400000
     pasaka:
       enabled: true
     vue:
