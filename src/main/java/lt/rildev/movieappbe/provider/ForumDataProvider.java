@@ -201,6 +201,7 @@ public class ForumDataProvider implements CinemaDataProvider {
                 .id(text(cinema, "id"))
                 .name(text(cinema, "name"))
                 .address(text(cinema, "street"))
+                .city(lt.rildev.movieappbe.model.City.fromForumCinemaName(text(cinema, "name")))
                 .build();
     }
 

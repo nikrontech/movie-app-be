@@ -60,6 +60,7 @@ public class VueDataProvider implements CinemaDataProvider {
             result.add(Cinema.builder()
                     .id(text(cinema, "CinemaId"))
                     .name(text(cinema, "CinemaName"))
+                    .city(lt.rildev.movieappbe.model.City.VILNIUS)
                     .build());
         }
         return result;
@@ -173,6 +174,7 @@ public class VueDataProvider implements CinemaDataProvider {
                         .cinema(Cinema.builder()
                                 .id(text(cinema, "CinemaId"))
                                 .name(text(cinema, "CinemaName"))
+                                .city(lt.rildev.movieappbe.model.City.VILNIUS)
                                 .build())
                         .startsAt(parseDate(time))
                         .endsAt(endsAt(time, movie))
