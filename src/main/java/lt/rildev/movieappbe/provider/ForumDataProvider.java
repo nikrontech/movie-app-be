@@ -19,6 +19,7 @@ public class ForumDataProvider implements CinemaDataProvider {
 
     private static final String PROVIDER = "forum";
     private static final String API_BASE_URL = "https://restapi.forumcinemas.lt/api";
+    private static final String BOOKING_BASE_URL = "https://forumcinemas.lt/#/screen/";
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
@@ -178,14 +179,16 @@ public class ForumDataProvider implements CinemaDataProvider {
         List<Screening> result = new ArrayList<>();
         for (JsonNode screening : screenings) {
             String movieId = text(screening, "movieId");
+            String screeningId = text(screening, "id");
             int availabilityStatus = screening.path("availabilityStatus").asInt(-1);
             result.add(Screening.builder()
-                    .id(PROVIDER + ":" + text(screening, "id"))
+                    .id(PROVIDER + ":" + screeningId)
                     .movieId(PROVIDER + ":" + movieId)
                     .cinema(cinema)
                     .startsAt(parseDate(text(screening, "screeningTimeFrom")))
                     .endsAt(parseDate(text(screening, "screeningTimeTo")))
                     .screen(text(screening, "screenId"))
+                    .bookingUrl(bookingUrl(cinema.id(), screeningId))
                     .language(text(screening, "language"))
                     .subtitles(firstText(screening, "subtitles", "subtitles2"))
                     .format(firstText(screening, "format", "printType"))
@@ -194,6 +197,10 @@ public class ForumDataProvider implements CinemaDataProvider {
                     .build());
         }
         return result;
+    }
+
+    private String bookingUrl(String cinemaId, String screeningId) {
+        return BOOKING_BASE_URL + screeningId + "?cinemaId=" + cinemaId;
     }
 
     private Cinema mapCinema(JsonNode cinema) {
