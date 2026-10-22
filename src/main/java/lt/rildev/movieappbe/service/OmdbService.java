@@ -59,6 +59,10 @@ public class OmdbService {
     }
 
     public Optional<MovieRating> findRating(Movie movie) {
+        return findDetails(movie).map(this::toRating);
+    }
+
+    public Optional<OmdbMovie> findDetails(Movie movie) {
         Set<String> titles = new LinkedHashSet<>();
         titles.add(cleanTitle(movie.originalTitle()));
         titles.add(cleanTitle(movie.title()));
@@ -67,15 +71,19 @@ public class OmdbService {
             if (title == null || title.isBlank()) {
                 continue;
             }
-            Optional<MovieRating> rating = findRating(title, movie.releaseYear());
-            if (rating.isPresent()) {
-                return rating;
+            Optional<OmdbMovie> details = findDetails(title, movie.releaseYear());
+            if (details.isPresent()) {
+                return details;
             }
         }
         return Optional.empty();
     }
 
     public Optional<MovieRating> findRating(String title, Integer releaseYear) {
+        return findDetails(title, releaseYear).map(this::toRating);
+    }
+
+    public Optional<OmdbMovie> findDetails(String title, Integer releaseYear) {
         if (title == null || title.isBlank() || (enabled && apiKey.isBlank())) {
             return Optional.empty();
         }
@@ -97,9 +105,9 @@ public class OmdbService {
             if (cached.isEmpty() && yearValue == null) {
                 cached = repository.findFirstByTitle(cleanedTitle);
             }
-            if (cached.isPresent()) {
-                log.debug("Using cached OMDb rating for '{}' ({})", cleanedTitle, yearValue);
-                return Optional.of(toRating(cached.get()));
+            if (cached.isPresent() && hasEnrichment(cached.get())) {
+                log.debug("Using cached OMDb details for '{}' ({})", cleanedTitle, yearValue);
+                return cached;
             }
             if (!enabled) {
                 log.debug("OMDb API disabled; no local rating found for '{}' ({})", cleanedTitle, yearValue);
@@ -122,18 +130,19 @@ public class OmdbService {
                     .checkedAt(Instant.now())
                     .build());
             if (omdbMovie != null) {
-                return Optional.of(toRating(omdbMovie));
+                return Optional.of(omdbMovie);
             }
         }
         return Optional.empty();
     }
 
     private OmdbMovie fetch(String title, String year) {
-        log.info("Fetching OMDb rating for '{}' ({})", title, year);
+        log.info("Fetching OMDb details for '{}' ({})", title, year);
         StringBuilder url = new StringBuilder(baseUrl)
                 .append(baseUrl.contains("?") ? "&" : "?")
                 .append("apikey=").append(encode(apiKey))
-                .append("&t=").append(encode(title));
+                .append("&t=").append(encode(title))
+                .append("&plot=full");
         if (year != null) {
             url.append("&y=").append(encode(year));
         }
@@ -163,6 +172,9 @@ public class OmdbService {
                     .imdbId(text(json, "imdbID"))
                     .title(text(json, "Title"))
                     .year(text(json, "Year"))
+                    .director(text(json, "Director"))
+                    .actors(text(json, "Actors"))
+                    .plot(text(json, "Plot"))
                     .imdbRating(text(json, "imdbRating"))
                     .imdbVotes(text(json, "imdbVotes"))
                     .metascore(text(json, "Metascore"))
@@ -177,7 +189,7 @@ public class OmdbService {
         }
     }
 
-    private MovieRating toRating(OmdbMovie movie) {
+    public MovieRating toRating(OmdbMovie movie) {
         return MovieRating.builder()
                 .imdbId(movie.imdbId())
                 .imdbRating(movie.imdbRating())
@@ -190,6 +202,14 @@ public class OmdbService {
                                 .build())
                         .toList())
                 .build();
+    }
+
+    private boolean hasEnrichment(OmdbMovie movie) {
+        return present(movie.director()) || present(movie.actors()) || present(movie.plot());
+    }
+
+    private boolean present(String value) {
+        return value != null && !value.isBlank() && !"N/A".equalsIgnoreCase(value);
     }
 
     private String encode(String value) {

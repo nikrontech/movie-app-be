@@ -59,9 +59,16 @@ public class MovieMergeTask {
                 .durationMinutes(preferred.durationMinutes())
                 .description(firstNonBlank(movies, Movie::description))
                 .shortDescription(firstNonBlank(movies, Movie::shortDescription))
+                .director(firstNonBlank(movies, Movie::director))
+                .cast(firstNonBlank(movies, Movie::cast))
+                .writer(firstNonBlank(movies, Movie::writer))
+                .country(firstNonBlank(movies, Movie::country))
+                .language(firstNonBlank(movies, Movie::language))
+                .distributor(firstNonBlank(movies, Movie::distributor))
+                .imdbId(firstNonBlank(movies, Movie::imdbId))
                 .releaseDate(firstNonNull(movies, Movie::releaseDate))
                 .releaseYear(firstNonNull(movies, Movie::releaseYear))
-                .genres(preferred.genres())
+                .genres(mergeGenres(movies))
                 .ageRating(preferred.ageRating())
                 .externalPosterUrl(firstNonBlank(movies, Movie::externalPosterUrl))
                 .externalThumbnailUrl(firstNonBlank(movies, Movie::externalThumbnailUrl))
@@ -154,5 +161,17 @@ public class MovieMergeTask {
                 .filter(value -> value != null)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private List<lt.rildev.movieappbe.model.Genre> mergeGenres(List<Movie> movies) {
+        Map<String, lt.rildev.movieappbe.model.Genre> genres = new LinkedHashMap<>();
+        for (Movie movie : movies) {
+            if (movie.genres() == null) continue;
+            for (lt.rildev.movieappbe.model.Genre genre : movie.genres()) {
+                if (genre == null || genre.name() == null || genre.name().isBlank()) continue;
+                genres.putIfAbsent(normalize(genre.name()), genre);
+            }
+        }
+        return new ArrayList<>(genres.values());
     }
 }
