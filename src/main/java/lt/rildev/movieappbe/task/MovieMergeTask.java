@@ -58,8 +58,8 @@ public class MovieMergeTask {
 
         return MergedMovie.builder()
                 .id("merged:" + identity(movies.get(0)))
-                .title(cleanDisplayTitle(preferred.title()))
-                .originalTitle(firstNonBlank(movies, Movie::originalTitle))
+                .title(shortestTitle(movies))
+                .originalTitle(shortestNonBlank(movies, Movie::originalTitle))
                 .durationMinutes(preferred.durationMinutes())
                 .description(preserveDescription(firstNonBlank(movies, Movie::description), existing))
                 .shortDescription(firstNonBlank(movies, Movie::shortDescription))
@@ -158,6 +158,23 @@ public class MovieMergeTask {
         return movies.stream().map(getter)
                 .filter(value -> value != null && !value.isBlank())
                 .findFirst().orElse(null);
+    }
+
+    private String shortestTitle(List<Movie> movies) {
+        return movies.stream()
+                .map(Movie::title)
+                .filter(value -> value != null && !value.isBlank())
+                .map(this::cleanDisplayTitle)
+                .min(Comparator.comparingInt(String::length))
+                .orElse(null);
+    }
+
+    private String shortestNonBlank(List<Movie> movies, Function<Movie, String> getter) {
+        return movies.stream()
+                .map(getter)
+                .filter(value -> value != null && !value.isBlank())
+                .min(Comparator.comparingInt(String::length))
+                .orElse(null);
     }
 
     private String preserve(String providerValue, String existingValue) {
