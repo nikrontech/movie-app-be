@@ -252,6 +252,7 @@ public class ApolloDataProvider implements CinemaDataProvider {
 
     private String absolute(String value) {
         if (value == null || value.isBlank()) return "";
+        if (value.startsWith("//")) return "https:" + value;
         return value.startsWith("http") ? value : "https://www.apollokinas.lt" + value;
     }
 

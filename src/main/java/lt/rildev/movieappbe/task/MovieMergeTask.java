@@ -88,9 +88,9 @@ public class MovieMergeTask {
     }
 
     private String identity(Movie movie) {
-        String title = movie.originalTitle();
+        String title = movie.title();
+        if (title == null || title.isBlank()) title = movie.originalTitle();
         if (title == null || title.isBlank()) title = parenthesizedTitle(movie.title());
-        if (title == null || title.isBlank()) title = movie.title();
         String normalizedTitle = normalize(title);
 
         if (normalizedTitle.isBlank()) {
@@ -114,6 +114,7 @@ public class MovieMergeTask {
                 "^(5 euru savaite|nk ?26|sca ?26|nemokamas seansas senjorams|pasiklyde ekrane pristato)\\s*[:|-]?\\s*",
                 ""
         );
+        normalized = normalized.replaceFirst("^the\\s+", "");
         normalized = normalized.replaceAll("\\b(dubliuotas|dubbed)\\b", " ");
         return NON_ALPHANUMERIC.matcher(normalized).replaceAll(" ").trim();
     }
