@@ -89,6 +89,12 @@ public class MovieMergeTask {
 
     private String identity(Movie movie) {
         String title = movie.title();
+        if (title != null) {
+            int openingParenthesis = title.indexOf('(');
+            if (openingParenthesis > 0) {
+                title = title.substring(0, openingParenthesis).trim();
+            }
+        }
         if (title == null || title.isBlank()) title = movie.originalTitle();
         if (title == null || title.isBlank()) title = parenthesizedTitle(movie.title());
         String normalizedTitle = normalize(title);
