@@ -36,7 +36,7 @@ public class ApolloDataProvider implements CinemaDataProvider {
     private static final ZoneId ZONE = ZoneId.of("Europe/Vilnius");
     private static final Map<String, ApolloCinema> CINEMAS = Map.of(
             "1019", new ApolloCinema("Apollo Kinas Akropolyje", City.VILNIUS),
-            "1018", new ApolloCinema("Apollo Kinas Panevėžys", null),
+            "1018", new ApolloCinema("Apollo Kinas Panevėžys", City.PANEVEZYS),
             "1024", new ApolloCinema("Apollo Kinas Vilnius Outlet", City.VILNIUS)
     );
 

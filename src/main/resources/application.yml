@@ -49,18 +49,18 @@ video:
 
 cinema:
   sync:
-    enabled: false
+    enabled: true
     initial-delay-ms: 1000
     fixed-delay-ms: 86400000
     pasaka:
-      enabled: true
+      enabled: false
     vue:
-      enabled: true
+      enabled: false
     forum:
-      enabled: true
+      enabled: false
     apollo:
       enabled: true
   merge:
     enabled: true
   omdb:
-    enabled: true
+    enabled: false

@@ -4,7 +4,8 @@ public enum City {
     VILNIUS,
     KLAIPEDA,
     KAUNAS,
-    SIAULIAI;
+    SIAULIAI,
+    PANEVEZYS;
 
     public static City fromForumCinemaName(String name) {
         if (name == null) return null;
