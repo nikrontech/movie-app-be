@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.net.URLEncoder;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -177,15 +178,19 @@ public class ApolloDataProvider implements CinemaDataProvider {
 
     private void enrichMovie(MovieBuilder movie, String eventUrl) {
         try {
-            Document document = Jsoup.parse(restClient.get().uri(eventUrl).retrieve().body(String.class));
+            Document document = Jsoup.parse(
+                    restClient.get().uri(URI.create(eventUrl)).retrieve().body(String.class));
             movie.originalTitle = text(document, ".movie-details__original-title");
             movie.description = text(document, ".movie-details__description-inner");
             movie.director = detailValue(document, "Režisavo");
             movie.cast = detailValue(document, "Vaidina");
             movie.durationMinutes = parseDuration(detailValue(document, "Filmo trukmė"));
             movie.age = text(document, ".movie-details__tag");
-            movie.externalPosterUrl = imageUrl(document.select("img[data-srcset]").last());
-            Element trailer = document.select("[data-src*=" + "youtube" + "]").first();
+            movie.externalPosterUrl = imageUrl(document.select("img[data-srcset]").stream()
+                    .filter(image -> image.attr("data-srcset").contains("poster_xxlarge"))
+                    .findFirst()
+                    .orElseGet(() -> document.select("img[data-srcset]").first()));
+            Element trailer = document.select(".js-event-video-link[data-src]").first();
             movie.externalTrailerUrl = trailer == null ? null : absolute(trailer.attr("data-src"));
             String genreText = detailValue(document, "Filmo žanras");
             movie.genres = Arrays.stream(genreText.split(","))
