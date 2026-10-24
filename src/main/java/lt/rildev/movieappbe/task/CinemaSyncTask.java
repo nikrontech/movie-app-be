@@ -17,6 +17,7 @@ public class CinemaSyncTask {
     private final ApolloSyncTask apolloSyncTask;
     private final MovieMergeTask movieMergeTask;
     private final OmdbSyncTask omdbSyncTask;
+    private final boolean syncEnabled;
     private final boolean pasakaEnabled;
     private final boolean vueEnabled;
     private final boolean forumEnabled;
@@ -31,6 +32,7 @@ public class CinemaSyncTask {
             ApolloSyncTask apolloSyncTask,
             MovieMergeTask movieMergeTask,
             OmdbSyncTask omdbSyncTask,
+            @Value("${cinema.sync.enabled:true}") boolean syncEnabled,
             @Value("${cinema.sync.pasaka.enabled:false}") boolean pasakaEnabled,
             @Value("${cinema.sync.vue.enabled:false}") boolean vueEnabled,
             @Value("${cinema.sync.forum.enabled:false}") boolean forumEnabled,
@@ -44,6 +46,7 @@ public class CinemaSyncTask {
         this.apolloSyncTask = apolloSyncTask;
         this.movieMergeTask = movieMergeTask;
         this.omdbSyncTask = omdbSyncTask;
+        this.syncEnabled = syncEnabled;
         this.pasakaEnabled = pasakaEnabled;
         this.vueEnabled = vueEnabled;
         this.forumEnabled = forumEnabled;
@@ -57,6 +60,11 @@ public class CinemaSyncTask {
             fixedDelayString = "${cinema.sync.fixed-delay-ms:3600000}"
     )
     public void synchronize() {
+        if (!syncEnabled) {
+            log.debug("Cinema synchronization is disabled");
+            return;
+        }
+
         if (pasakaEnabled) {
             pasakaSyncTask.synchronizePasaka();
         }

@@ -49,6 +49,7 @@ video:
 
 cinema:
   sync:
+    enabled: false
     initial-delay-ms: 1000
     fixed-delay-ms: 86400000
     pasaka:
